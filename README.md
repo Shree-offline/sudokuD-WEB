@@ -15,3 +15,5 @@ A lightweight, responsive Sudoku web application built with **Python** and **Fla
 TO PLAY PRESS ON THE LINK::
 
 https://sudokud-web-4.onrender.com
+
+<img width="1862" height="857" alt="image" src="https://github.com/user-attachments/assets/82a6c862-f7dc-48e7-9e04-7d25cbbe12cc" />
