@@ -3,12 +3,170 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sudoku</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>Neon Punch Sudoku</title>
+    <style>
+        body {
+            background-color: #0d0d0d;
+            color: #fff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        h2 {
+            text-shadow: 0 0 10px #ff00ff, 0 0 20px #ff00ff;
+            color: #ff00ff;
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+        }
+
+        table {
+            border-collapse: collapse;
+            border: 4px solid #00ffff;
+            box-shadow: 0 0 15px #00ffff, inset 0 0 10px #00ffff;
+            background: #1a1a1a;
+            margin-bottom: 20px;
+        }
+
+        td {
+            width: 50px;
+            height: 50px;
+            border: 1px solid #333;
+            padding: 0;
+        }
+
+        td:nth-child(3n) { border-right: 3px solid #00ffff; }
+        tr:nth-child(3n) td { border-bottom: 3px solid #00ffff; }
+
+        input, .fixed {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            background: transparent;
+            border: none;
+            color: #00ff00;
+            text-align: center;
+            outline: none;
+        }
+
+        .fixed {
+            color: #ff00ff;
+            font-weight: bold;
+            text-shadow: 0 0 5px #ff00ff;
+        }
+
+        input:focus { background: rgba(0, 255, 255, 0.1); }
+        input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+
+        .controls { display: flex; gap: 15px; }
+        button {
+            background: transparent;
+            color: #00ffff;
+            border: 2px solid #00ffff;
+            padding: 10px 20px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            text-shadow: 0 0 5px #00ffff;
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+        button:hover {
+            background: #00ffff;
+            color: #0d0d0d;
+            box-shadow: 0 0 20px #00ffff;
+        }
+    </style>
 </head>
 <body>
-    <h1>Welcome to Sudoku</h1>
-    <div id="sudoku-board"></div>
-    <script src="script.js"></script>
+
+    <h2>NEON PUNCH</h2>
+    
+    <table id="sudoku-grid">
+        {% for row in range(9) %}
+        <tr>
+            {% for col in range(9) %}
+            <td>
+                {% if grid[row][col] != 0 %}
+                    <div class="fixed">{{ grid[row][col] }}</div>
+                {% else %}
+                    <input type="number" min="1" max="9">
+                {% endif %}
+            </td>
+            {% endfor %}
+        </tr>
+        {% endfor %}
+    </table>
+
+    <div class="controls">
+        <button onclick="newGame()">New Game</button>
+        <button onclick="checkSolution()">Check Solution</button>
+    </div>
+
+    <script>
+        async function newGame() {
+            const response = await fetch('/new_game');
+            const data = await response.json();
+            const grid = data.grid;
+            
+            const table = document.getElementById('sudoku-grid');
+            table.innerHTML = ''; 
+            
+            for (let r = 0; r < 9; r++) {
+                let tr = document.createElement('tr');
+                for (let c = 0; c < 9; c++) {
+                    let td = document.createElement('td');
+                    let val = grid[r][c];
+                    
+                    if (val !== 0) {
+                        td.innerHTML = `<div class="fixed">${val}</div>`;
+                    } else {
+                        td.innerHTML = `<input type="number" min="1" max="9">`;
+                    }
+                    tr.appendChild(td);
+                }
+                table.appendChild(tr);
+            }
+        }
+
+        async function checkSolution() {
+            const table = document.getElementById('sudoku-grid');
+            let currentGrid = [];
+            
+            for (let r = 0; r < 9; r++) {
+                let rowArray = [];
+                let row = table.rows[r];
+                for (let c = 0; c < 9; c++) {
+                    let cell = row.cells[c];
+                    let fixedDiv = cell.querySelector('.fixed');
+                    let inputNode = cell.querySelector('input');
+                    
+                    if (fixedDiv) {
+                        rowArray.push(parseInt(fixedDiv.innerText));
+                    } else if (inputNode && inputNode.value !== "") {
+                        rowArray.push(parseInt(inputNode.value));
+                    } else {
+                        rowArray.push(0);
+                    }
+                }
+                currentGrid.push(rowArray);
+            }
+
+            const response = await fetch('/check_solution', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ grid: currentGrid })
+            });
+            
+            const result = await response.json();
+            alert(result.message);
+        }
+    </script>
 </body>
 </html>
