@@ -12,3 +12,6 @@ A lightweight, responsive Sudoku web application built with **Python** and **Fla
 1. Clone the repo:
    ```bash
    git clone [https://github.com/Shree-offline/sudokuD-WEB.git](https://github.com/Shree-offline/sudokuD-WEB.git)
+TO PLAY PRESS ON THE LINK::
+
+https://sudokud-web-4.onrender.com
